@@ -13,11 +13,16 @@ namespace DevOpsSync.WebApp.API.Controllers
     {
         private readonly ClientSettings config;
         private readonly IGitHub gitHub;
+        private readonly IDataStore dataStore;
 
-        public GitHubController(IOptions<Settings> config, IGitHub gitHub)
+        public GitHubController(
+            IOptions<Settings> config, 
+            IGitHub gitHub,
+            IDataStore dataStore)
         {
             this.config = config.Value.GitHub;
             this.gitHub = gitHub;
+            this.dataStore = dataStore;
         }
 
         [HttpGet]
@@ -49,7 +54,7 @@ namespace DevOpsSync.WebApp.API.Controllers
             };
 
             var token = await gitHub.GetTokenAsync(authRequest);
-            //TODO: Save token to database
+            dataStore.Storage.Add("GitHubToken", token.AccessToken);
         }
     }
 }
