@@ -1,5 +1,5 @@
 ﻿using DevOpsSync.WebApp.API.Code;
-using DevOpsSync.WebApp.API.Models.GitHub;
+using DevOpsSync.WebApp.API.Models.Slack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
@@ -9,15 +9,15 @@ namespace DevOpsSync.WebApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GitHubController : ControllerBase
+    public class SlackController : ControllerBase
     {
         private readonly ClientSettings config;
-        private readonly IGitHub gitHub;
+        private readonly ISlack slack;
 
-        public GitHubController(IOptions<Settings> config, IGitHub gitHub)
+        public SlackController(IOptions<Settings> config, ISlack slack)
         {
-            this.config = config.Value.GitHub;
-            this.gitHub = gitHub;
+            this.config = config.Value.Slack;
+            this.slack = slack;
         }
 
         [HttpGet]
@@ -26,10 +26,10 @@ namespace DevOpsSync.WebApp.API.Controllers
             var state = Guid.NewGuid().ToString();
             Response.Cookies.Append("state", state);
 
-            return $"https://github.com/login/oauth/authorize" +
-              $"?client_id={config.ClientId}" +
-              $"&redirect_uri={config.RedirectUrl}" +
-              $"&state={state}";
+            return $"https://slack.com/oauth/v2/authorize?" +
+            "scope=chat:write,channels:read,im:read,users:read,users:read.email&" +
+            $"client_id={config.ClientId}&" +
+            $"redirect_uri={config.RedirectUrl}";
         }
 
         [HttpGet("auth")]
@@ -48,7 +48,7 @@ namespace DevOpsSync.WebApp.API.Controllers
                 Code = code
             };
 
-            var token = await gitHub.GetTokenAsync(authRequest);
+            var token = await slack.GetTokenAsync(authRequest);
             //TODO: Save token to database
         }
     }

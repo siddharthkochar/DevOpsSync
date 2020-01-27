@@ -22,6 +22,7 @@ namespace DevOpsSync.WebApp.API
             services.AddControllers();
             services.Configure<Settings>(Configuration.GetSection("Settings"));
             services.AddScoped(typeof(IGitHub), typeof(GitHub));
+            services.AddScoped(typeof(ISlack), typeof(Slack));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

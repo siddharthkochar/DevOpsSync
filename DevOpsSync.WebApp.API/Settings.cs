@@ -2,10 +2,11 @@
 {
     public class Settings
     {
-        public GitHubSettings GitHub { get; set; }
+        public ClientSettings GitHub { get; set; }
+        public ClientSettings Slack { get; set; }
     }
 
-    public class GitHubSettings
+    public class ClientSettings
     {
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
