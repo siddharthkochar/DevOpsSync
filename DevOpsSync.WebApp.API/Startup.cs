@@ -21,7 +21,6 @@ namespace DevOpsSync.WebApp.API
         {
             services.AddControllers();
             services.Configure<Settings>(Configuration.GetSection("Settings"));
-            services.AddScoped(typeof(IGitHub), typeof(GitHub));
             services.AddScoped(typeof(ISlack), typeof(Slack));
             services.AddSingleton(typeof(IDataStore), typeof(DataStore));
         }
@@ -33,7 +32,7 @@ namespace DevOpsSync.WebApp.API
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();

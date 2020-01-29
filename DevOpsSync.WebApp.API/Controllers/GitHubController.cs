@@ -1,8 +1,8 @@
-﻿using DevOpsSync.WebApp.API.Code;
-using DevOpsSync.WebApp.API.Models.GitHub;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Octokit;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DevOpsSync.WebApp.API.Controllers
@@ -11,18 +11,17 @@ namespace DevOpsSync.WebApp.API.Controllers
     [ApiController]
     public class GitHubController : ControllerBase
     {
-        private readonly ClientSettings config;
-        private readonly IGitHub gitHub;
+        private readonly Settings config;
         private readonly IDataStore dataStore;
+        private readonly GitHubClient client;
 
         public GitHubController(
-            IOptions<Settings> config, 
-            IGitHub gitHub,
+            IOptions<Settings> config,
             IDataStore dataStore)
         {
-            this.config = config.Value.GitHub;
-            this.gitHub = gitHub;
+            this.config = config.Value;
             this.dataStore = dataStore;
+            client = new GitHubClient(new ProductHeaderValue("DevOpsSync"));
         }
 
         [HttpGet]
@@ -31,10 +30,15 @@ namespace DevOpsSync.WebApp.API.Controllers
             var state = Guid.NewGuid().ToString();
             Response.Cookies.Append("state", state);
 
-            return $"https://github.com/login/oauth/authorize" +
-              $"?client_id={config.ClientId}" +
-              $"&redirect_uri={config.RedirectUrl}" +
-              $"&state={state}";
+            var request = new OauthLoginRequest(config.GitHub.ClientId)
+            {
+                RedirectUri = new Uri(config.GitHub.RedirectUrl),
+                State = state,
+                Scopes = { "admin:repo_hook" }
+            };
+
+            var oauthLoginUrl = client.Oauth.GetGitHubLoginUrl(request);
+            return oauthLoginUrl.AbsoluteUri;
         }
 
         [HttpGet("auth")]
@@ -46,15 +50,37 @@ namespace DevOpsSync.WebApp.API.Controllers
                 Unauthorized();
             }
 
-            var authRequest = new Token.Request
+            var authRequest = new OauthTokenRequest(config.GitHub.ClientId, config.GitHub.ClientSecret, code);
+            var token = await client.Oauth.CreateAccessToken(authRequest);
+            dataStore.Storage.Add("GitHubToken", token.AccessToken);
+        }
+
+        [HttpGet("webhook/create")]
+        public async Task CreateWebHook()
+        {
+            client.Credentials = new Credentials(dataStore.Storage["GitHubToken"]);
+
+            var hookConfig = new Dictionary<string, string>
             {
-                ClientId = config.ClientId,
-                CilentSecret = config.ClientSecret,
-                Code = code
+                { "url", $"{config.AppRootUrl}/api/github/webhook/handle" },
+                { "content_type", "application/json" }
             };
 
-            var token = await gitHub.GetTokenAsync(authRequest);
-            dataStore.Storage.Add("GitHubToken", token.AccessToken);
+            var hook = new NewRepositoryHook("web", hookConfig)
+            {
+                Active = true,
+                Events = new List<string> { "commit_comment", "pull_request" }
+            };
+
+            await client.Repository.Hooks.Create("sidkcr", "DevOpsSync", hook);
+        }
+
+        [HttpPost("webhook/handle")]
+        public void Handle()
+        {
+            var xGithubEvent = Request.Headers["X-GitHub-Event"].ToString();
+            var xGithubDelivery = Request.Headers["X-GitHub-Delivery"].ToString();
+            var xHubSignature = Request.Headers["X-Hub-Signature"].ToString();
         }
     }
 }
