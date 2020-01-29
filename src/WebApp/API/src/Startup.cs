@@ -46,6 +46,13 @@ namespace DevOpsSync.WebApp.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(config =>
+                {
+                    config.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowAnyOrigin()
+                        .SetIsOriginAllowed(x => true);
+                });
             }
 
             app.UseRouting();
@@ -56,10 +63,6 @@ namespace DevOpsSync.WebApp.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
             });
         }
     }
