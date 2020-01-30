@@ -1,6 +1,7 @@
 import React from 'react'
 import config from '../../config'
 import Services from '../../components/Services'
+import Wizard from '../../components/Wizard'
 
 export default class FlowController extends React.Component {
     constructor() {
@@ -41,7 +42,9 @@ export default class FlowController extends React.Component {
         }
 
         return (
-            <Services services={this.state.services} />
+            <Wizard>
+                <Services services={this.state.services} />
+            </Wizard>
         )
     }
 }
