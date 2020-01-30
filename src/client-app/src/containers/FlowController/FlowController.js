@@ -3,6 +3,7 @@ import { toast } from 'react-toastify'
 import config from '../../config'
 import Services from '../../components/Services'
 import Loader from '../../components/Loader'
+import Wizard from '../../components/Wizard'
 
 export default class FlowController extends React.Component {
 	constructor() {
@@ -43,6 +44,10 @@ export default class FlowController extends React.Component {
 			return <Loader />
 		}
 
-		return <Services services={this.state.services} />
+		return (
+			<Wizard>
+				<Services services={this.state.services} />
+			</Wizard>
+		)
 	}
 }
