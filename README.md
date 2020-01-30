@@ -1,1 +1,1 @@
-# DevOpsSync
+# DevOps-Sync
