@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using DevOpsSync.WebApp.API.Code;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +23,6 @@ namespace DevOpsSync.WebApp.API
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services
@@ -38,6 +38,9 @@ namespace DevOpsSync.WebApp.API
                 });
 
             services.AddControllers();
+            services.Configure<Settings>(Configuration.GetSection("Settings"));
+            services.AddScoped(typeof(ISlack), typeof(Slack));
+            services.AddSingleton(typeof(IDataStore), typeof(DataStore));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,6 +57,8 @@ namespace DevOpsSync.WebApp.API
                         .SetIsOriginAllowed(x => true);
                 });
             }
+            
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 

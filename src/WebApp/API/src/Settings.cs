@@ -2,6 +2,7 @@
 {
     public class Settings
     {
+        public string AppRootUrl { get; set; }
         public ClientSettings GitHub { get; set; }
         public ClientSettings Slack { get; set; }
     }
