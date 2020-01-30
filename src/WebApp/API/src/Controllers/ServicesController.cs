@@ -57,5 +57,25 @@ namespace DevOpsSync.WebApp.API.Controllers
 
             return Ok(triggersViewModels);
         }
+
+        [HttpGet("{serviceId}/triggers/{triggerId}/services")]
+        public async Task<IActionResult> GetApplicableServicesForTrigger([FromRoute] int serviceId, [FromRoute] int triggerId)
+        {
+            var actionServices = _dbContext.ServiceTriggerAction
+                .Where(x => x.TriggerId == triggerId)
+                .Select(x => x.ServiceAction.Service);
+
+            var triggersViewModels = actionServices.Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name,
+                ImageUrl = x.ImageUrl,
+                Color = x.Color
+            });
+
+            return Ok(triggersViewModels);
+        }
+
+        
     }
 }
