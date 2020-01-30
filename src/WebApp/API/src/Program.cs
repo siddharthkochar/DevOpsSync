@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace DevOpsSync.WebApp.API
 {
