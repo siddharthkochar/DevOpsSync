@@ -59,7 +59,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         }
 
         [HttpGet("{serviceId}/triggers/{triggerId}/services")]
-        public async Task<IActionResult> GetApplicableServicesForTrigger([FromRoute] int serviceId, [FromRoute] int triggerId)
+        public IActionResult GetApplicableServicesForTrigger([FromRoute] int serviceId, [FromRoute] int triggerId)
         {
             var actionServices = _dbContext.ServiceTriggerAction
                 .Where(x => x.TriggerId == triggerId)
@@ -76,6 +76,20 @@ namespace DevOpsSync.WebApp.API.Controllers
             return Ok(triggersViewModels);
         }
 
-        
+        [HttpGet("{serviceId}/triggers/{triggerId}/services/{actionServiceId}/actions")]
+        public IActionResult GetActions([FromRoute] int serviceId, [FromRoute] int triggerId, [FromRoute] int actionServiceId)
+        {
+            var actions = _dbContext.ServiceTriggerAction
+                .Where(x => x.TriggerId == triggerId && x.ServiceAction.ServiceId == actionServiceId)
+                .Select(x => x.ServiceAction);
+
+            var actionViewModels = actions.Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name
+            });
+
+            return Ok(actionViewModels);
+        }
     }
 }
