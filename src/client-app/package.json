@@ -7,11 +7,15 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "auth0-js": "^9.12.2",
+    "bootstrap": "4.4.1",
     "lodash": "^4.17.15",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "query-string": "6.10.1",
+    "react": "16.12.0",
+    "react-dom": "16.12.0",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.3.0"
+    "react-scripts": "3.3.0",
+    "react-toastify": "5.5.0",
+    "reactstrap": "8.4.1"
   },
   "scripts": {
     "start": "react-scripts start",
