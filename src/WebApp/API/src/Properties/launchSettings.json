@@ -18,6 +18,7 @@
     },
     "DevOpsSync.WebApp.API": {
       "commandName": "Project",
+      "workingDirectory": "../../../..",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
