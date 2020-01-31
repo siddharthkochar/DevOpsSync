@@ -9,7 +9,7 @@ namespace src.Controllers
     public class ValuesController : ControllerBase
     {
         [HttpGet(""), Authorize]
-        public async Task<IActionResult> GetAsync()
+        public IActionResult GetAsync()
         {
             return Ok(new List<string> {
                 "hey",
