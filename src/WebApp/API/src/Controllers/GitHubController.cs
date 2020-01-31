@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DevOpsSync.WebApp.API.Models.GitHub.Events;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Octokit;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DevOpsSync.WebApp.API.Controllers
@@ -69,18 +73,35 @@ namespace DevOpsSync.WebApp.API.Controllers
             var hook = new NewRepositoryHook("web", hookConfig)
             {
                 Active = true,
-                Events = new List<string> { "commit_comment", "pull_request" }
+                Events = new List<string> { "push", "pull_request" }
             };
 
             await client.Repository.Hooks.Create("sidkcr", "DevOpsSync", hook);
         }
 
         [HttpPost("webhook/handle")]
-        public void Handle()
+        public void Handle([FromBody] object content)
         {
             var xGithubEvent = Request.Headers["X-GitHub-Event"].ToString();
-            var xGithubDelivery = Request.Headers["X-GitHub-Delivery"].ToString();
-            var xHubSignature = Request.Headers["X-Hub-Signature"].ToString();
+            var message = string.Empty;
+            var state = string.Empty;
+            switch (xGithubEvent)
+            {
+                case "push":
+                    var pushEvent = JsonConvert.DeserializeObject<PushEvent>(content.ToString());
+                    message = pushEvent.commits.First().message;
+                    state = "In-progress";
+                    break;
+                case "pull_request":
+                    var pullRequestEvent = JsonConvert.DeserializeObject<PullRequestEvent>(content.ToString());
+                    message = pullRequestEvent.pull_request.body;
+                    state = pullRequestEvent.action == "opened"
+                        ? "In-verify"
+                        : "Done";
+                    break;
+            }
+
+            string workItemId = Regex.Match(message, @"#\d+").Value;
         }
     }
 }
