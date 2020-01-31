@@ -15,3 +15,4 @@ namespace DevOpsSync.WebApp.API.Services.VSTS
 
         public string Scope { get; set; }
     }
+}

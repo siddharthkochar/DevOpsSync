@@ -5,17 +5,22 @@ namespace DevOpsSync.WebApp.API.Services.VSTS
 {
     public class VSTSService
     {
+        private string ClientId { get; }
         private string ClientSecret { get; }
         private string RedirectUrl { get; }
         private string RefreshToken { get; set; }
         private string AccessToken { get => RefreshAccessToken(); }
 
-        public VSTSService(string authCode, string clientSecret, string redirectUrl)
+        public VSTSService(
+            string clientId, string clientSecret, string redirectUrl, string authCode)
         {
+            ClientId = clientId;
             ClientSecret = clientSecret;
             RedirectUrl = redirectUrl;
-            GetRefreshTokenByAuthCode(authCode);
+            InitializeServiceWithAuthCode(authCode);
         }
+
+
 
         public void SetWorkItemStatus(
             string organization, string project, int workItem, string status)
@@ -36,7 +41,7 @@ namespace DevOpsSync.WebApp.API.Services.VSTS
             IRestResponse response = client.Execute(request);
         }
 
-        private void GetRefreshTokenByAuthCode(string authCode)
+        private void InitializeServiceWithAuthCode(string authCode)
         {
             var client = new RestClient("https://app.vssps.visualstudio.com/oauth2/token");
             client.Timeout = -1;
@@ -51,6 +56,12 @@ namespace DevOpsSync.WebApp.API.Services.VSTS
 
             var content = JsonConvert.DeserializeObject<Response>(response.Content);
             RefreshToken = content.RefreshToken;
+        }
+
+        public static string GetAuthUrl(string clientId, string redirectUrl)
+        {
+            return
+            $"https://app.vssps.visualstudio.com/oauth2/authorize?client_id={clientId}&response_type=Assertion&scope=vso.work_full&redirect_uri={redirectUrl}";
         }
 
         private string RefreshAccessToken()
