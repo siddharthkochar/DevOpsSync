@@ -20,8 +20,6 @@ namespace DevOpsSync.WebApp.API.Services.VSTS
             InitializeServiceWithAuthCode(authCode);
         }
 
-
-
         public void SetWorkItemStatus(
             string organization, string project, int workItem, string status)
         {
