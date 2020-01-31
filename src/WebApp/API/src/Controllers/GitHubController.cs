@@ -28,7 +28,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         public string GetConsentUrl()
         {
             var state = Guid.NewGuid().ToString();
-            Response.Cookies.Append("state", state);
+            dataStore.Storage.Add("github-state", state);
 
             var request = new OauthLoginRequest(config.GitHub.ClientId)
             {
@@ -44,15 +44,15 @@ namespace DevOpsSync.WebApp.API.Controllers
         [HttpGet("auth")]
         public async Task Auth([FromQuery] string code, [FromQuery] string state)
         {
-            var cookies = Request.Cookies["state"];
-            if (cookies != state)
+            var githubState = dataStore.Storage["github-state"];
+            if (githubState != state)
             {
                 Unauthorized();
             }
 
             var authRequest = new OauthTokenRequest(config.GitHub.ClientId, config.GitHub.ClientSecret, code);
             var token = await client.Oauth.CreateAccessToken(authRequest);
-            dataStore.Storage.Add("GitHubToken", token.AccessToken);
+            Response.Cookies.Append("github-token", token.AccessToken);
         }
 
         [HttpGet("webhook/create")]
