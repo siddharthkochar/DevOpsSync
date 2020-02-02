@@ -28,7 +28,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         [HttpGet("initialize")]
         public IActionResult Initialize([FromQuery] string code)
         {
-            dataStore.ObjectStorage[Constants.VSTSServiceKey] =
+            dataStore.Storage[Constants.VSTSServiceKey] =
                 new VSTSService(config.ClientSecret, config.RedirectUrl, code);
             return Ok();
         }
