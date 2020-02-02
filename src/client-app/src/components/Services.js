@@ -3,7 +3,7 @@ import map from 'lodash/map'
 import { Link } from 'react-router-dom'
 import { Container, CardDeck, Card, CardImg, CardText, CardBody } from 'reactstrap'
 
-const Services = ({ services }) => (
+const Services = ({ services, onServiceSelect, onNextStep }) => (
 	<Container style={{ marginTop: 30 }}>
 		<CardDeck>
 			{map(services, service => (
@@ -19,7 +19,7 @@ const Services = ({ services }) => (
 						padding: 20,
 						cursor: 'pointer'
 					}}>
-					<Link to={`/service/${service.name}`}>
+					<Link onClick={() => {onServiceSelect(service.id); onNextStep && onNextStep()}}>
 						<CardImg
 							top
 							style={{ height: 150, margin: 'auto', width: 'auto' }}
