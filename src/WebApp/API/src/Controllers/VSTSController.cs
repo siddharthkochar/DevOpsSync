@@ -19,7 +19,7 @@ namespace DevOpsSync.WebApp.API.Controllers
             this.dataStore = dataStore;
         }
 
-        [HttpPost("authenticate")]
+        [HttpGet("authenticate")]
         public IActionResult Authenticate()
         {
             return Redirect(VSTSService.GetAuthUrl(config.ClientId, config.RedirectUrl));
