@@ -5,16 +5,14 @@ namespace DevOpsSync.WebApp.API.Services.VSTS
 {
     public class VSTSService
     {
-        private string ClientId { get; }
         private string ClientSecret { get; }
         private string RedirectUrl { get; }
         private string RefreshToken { get; set; }
         private string AccessToken { get => RefreshAccessToken(); }
 
         public VSTSService(
-            string clientId, string clientSecret, string redirectUrl, string authCode)
+            string clientSecret, string redirectUrl, string authCode)
         {
-            ClientId = clientId;
             ClientSecret = clientSecret;
             RedirectUrl = redirectUrl;
             InitializeServiceWithAuthCode(authCode);

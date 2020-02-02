@@ -1,4 +1,5 @@
 ﻿using DevOpsSync.WebApp.API.Models.GitHub.Events;
+using DevOpsSync.WebApp.API.Services.VSTS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -102,6 +103,13 @@ namespace DevOpsSync.WebApp.API.Controllers
             }
 
             string workItemId = Regex.Match(message, @"#\d+").Value;
+        }
+
+        private void SetItemStatus(
+            string organization, string project, int workItemId, string status)
+        {
+            var service = (VSTSService)dataStore.ObjectStorage[Constants.VSTSServiceKey];
+            service.SetWorkItemStatus(organization, project, workItemId, status);
         }
     }
 }
