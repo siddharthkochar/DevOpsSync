@@ -49,7 +49,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         [HttpGet("auth")]
         public async Task Auth([FromQuery] string code, [FromQuery] string state)
         {
-            var githubState = dataStore.Storage["github-state"];
+            var githubState = (string)dataStore.Storage["github-state"];
             if (githubState != state)
             {
                 Unauthorized();
@@ -63,7 +63,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         [HttpGet("webhook/create")]
         public async Task CreateWebHook()
         {
-            client.Credentials = new Credentials(dataStore.Storage["GitHubToken"]);
+            client.Credentials = new Credentials((string)dataStore.Storage["GitHubToken"]);
 
             var hookConfig = new Dictionary<string, string>
             {
@@ -108,7 +108,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         private void SetItemStatus(
             string organization, string project, int workItemId, string status)
         {
-            var service = (VSTSService)dataStore.ObjectStorage[Constants.VSTSServiceKey];
+            var service = (VSTSService)dataStore.Storage[Constants.VSTSServiceKey];
             service.SetWorkItemStatus(organization, project, workItemId, status);
         }
     }
