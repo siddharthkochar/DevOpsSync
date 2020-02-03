@@ -1,4 +1,5 @@
 ﻿using DevOpsSync.WebApp.API.Models.GitHub.Events;
+using DevOpsSync.WebApp.API.Services.Slack;
 using DevOpsSync.WebApp.API.Services.VSTS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,8 @@ namespace DevOpsSync.WebApp.API.Controllers
     [ApiController]
     public class GitHubController : ControllerBase
     {
+        private const string Organization = "00004";
+        private const string Project = "devops-sync";
         private readonly Settings config;
         private readonly IDataStore dataStore;
         private readonly GitHubClient client;
@@ -29,8 +32,8 @@ namespace DevOpsSync.WebApp.API.Controllers
             client = new GitHubClient(new ProductHeaderValue("DevOpsSync"));
         }
 
-        [HttpGet]
-        public string GetConsentUrl()
+        [HttpGet("initialize")]
+        public IActionResult Initialize()
         {
             var state = Guid.NewGuid().ToString();
             dataStore.Storage.Add("github-state", state);
@@ -43,7 +46,7 @@ namespace DevOpsSync.WebApp.API.Controllers
             };
 
             var oauthLoginUrl = client.Oauth.GetGitHubLoginUrl(request);
-            return oauthLoginUrl.AbsoluteUri;
+            return Redirect(oauthLoginUrl.AbsoluteUri);
         }
 
         [HttpGet("auth")]
@@ -97,19 +100,36 @@ namespace DevOpsSync.WebApp.API.Controllers
                     var pullRequestEvent = JsonConvert.DeserializeObject<PullRequestEvent>(content.ToString());
                     message = pullRequestEvent.pull_request.body;
                     state = pullRequestEvent.action == "opened"
-                        ? "In-verify"
+                        ? "Approved"
                         : "Done";
                     break;
             }
 
-            string workItemId = Regex.Match(message, @"#\d+").Value;
+            var matches = Regex.Matches(message, @"#\d+");
+            foreach (Match match in matches)
+            {
+                string workItemId = match.Value.Replace("#", string.Empty);
+                SetItemStatus(Organization, Project, Convert.ToInt32(workItemId), state);
+            }
+
+            if (xGithubEvent == "pull_request")
+            {
+                PostMessage("general", $"New pull request - https://dev.azure.com/{Organization}/_git/{Project}/pullrequests");
+            }
         }
 
         private void SetItemStatus(
             string organization, string project, int workItemId, string status)
         {
-            var service = (VSTSService)dataStore.Storage[Constants.VSTSServiceKey];
+            var service = (VSTSService)dataStore.Storage[Services.VSTS.Constants.VSTSServiceKey];
             service.SetWorkItemStatus(organization, project, workItemId, status);
+        }
+
+
+        private void PostMessage(string channel, string text)
+        {
+            var service = (SlackService)dataStore.Storage[Services.Slack.Constants.SlackKey];
+            service.PostMessage(channel, text);
         }
     }
 }
