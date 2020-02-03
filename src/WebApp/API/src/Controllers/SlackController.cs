@@ -15,11 +15,10 @@ namespace DevOpsSync.WebApp.API.Controllers
         private readonly ClientSettings config;
         private IDataStore dataStore;
 
-        public SlackController(IOptions<Settings> config, ISlack slack, IDataStore dataStore)
+        public SlackController(IOptions<Settings> config, IDataStore dataStore)
 
         {
             this.config = config.Value.Slack;
-            this.slack = slack;
             this.dataStore = dataStore;
         }
 
