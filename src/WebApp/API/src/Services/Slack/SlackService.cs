@@ -24,7 +24,7 @@ namespace DevOpsSync.WebApp.API.Services.Slack
                 "https://slack.com/api/oauth.v2.access?scope=chat:write,channels:read" +
                 $"&client_id={ClientId}&code={authCode}&client_secret={ClientSecret}");
             client.Timeout = -1;
-            var request = new RestRequest(Method.GET);
+            var request = new RestRequest(Method.POST);
             IRestResponse response = client.Execute(request);
             var content = JsonConvert.DeserializeObject<Token.Response>(response.Content);
             AccessToken = content.AccessToken;
