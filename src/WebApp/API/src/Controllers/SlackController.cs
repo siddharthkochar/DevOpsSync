@@ -1,9 +1,6 @@
-﻿using DevOpsSync.WebApp.API.Code;
-using DevOpsSync.WebApp.API.Models.Slack;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
-using System.Threading.Tasks;
 using DevOpsSync.WebApp.API.Services.Slack;
 
 namespace DevOpsSync.WebApp.API.Controllers
