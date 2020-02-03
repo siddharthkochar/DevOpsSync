@@ -94,7 +94,7 @@ namespace DevOpsSync.WebApp.API.Controllers
                 case "push":
                     var pushEvent = JsonConvert.DeserializeObject<PushEvent>(content.ToString());
                     message = pushEvent.commits.First().message;
-                    state = "In-progress";
+                    state = "In Progress";
                     break;
                 case "pull_request":
                     var pullRequestEvent = JsonConvert.DeserializeObject<PullRequestEvent>(content.ToString());
