@@ -114,7 +114,7 @@ namespace DevOpsSync.WebApp.API.Controllers
 
             if (xGithubEvent == "pull_request")
             {
-                PostMessage("general", $"New pull request - https://dev.azure.com/{Organization}/_git/{Project}/pullrequests");
+                PostMessage("general", $"New pull request - https://github.com/sidkcr/DevOpsSync/pulls");
             }
         }
 
