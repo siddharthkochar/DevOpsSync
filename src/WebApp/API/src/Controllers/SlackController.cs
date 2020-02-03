@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
+using DevOpsSync.WebApp.API.Services.Slack;
 
 namespace DevOpsSync.WebApp.API.Controllers
 {
@@ -13,11 +14,14 @@ namespace DevOpsSync.WebApp.API.Controllers
     {
         private readonly ClientSettings config;
         private readonly ISlack slack;
+        private IDataStore dataStore;
 
-        public SlackController(IOptions<Settings> config, ISlack slack)
+        public SlackController(IOptions<Settings> config, ISlack slack, IDataStore dataStore)
+)
         {
             this.config = config.Value.Slack;
             this.slack = slack;
+            this.dataStore = dataStore;
         }
 
         [HttpGet]
@@ -26,10 +30,10 @@ namespace DevOpsSync.WebApp.API.Controllers
             var state = Guid.NewGuid().ToString();
             Response.Cookies.Append("state", state);
 
-            return $"https://slack.com/oauth/v2/authorize?" +
+            Redirect($"https://slack.com/oauth/v2/authorize?" +
             "scope=chat:write,channels:read,im:read,users:read,users:read.email&" +
             $"client_id={config.ClientId}&" +
-            $"redirect_uri={config.RedirectUrl}";
+            $"redirect_uri={config.RedirectUrl}");
         }
 
         [HttpGet("auth")]
@@ -48,8 +52,8 @@ namespace DevOpsSync.WebApp.API.Controllers
                 Code = code
             };
 
-            var token = await slack.GetTokenAsync(authRequest);
-            //TODO: Save token to database
+            dataStore.Storage[Constants.SlackKey] =
+                new SlackService(config.ClientId, config.ClientSecret, code);
         }
     }
 }
