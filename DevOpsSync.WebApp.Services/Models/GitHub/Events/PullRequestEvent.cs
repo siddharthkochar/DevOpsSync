@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DevOpsSync.WebApp.API.Models.GitHub.Events
+﻿namespace DevOpsSync.WebApp.Services.Models.GitHub.Events
 {
     public class PullRequestEvent
     {

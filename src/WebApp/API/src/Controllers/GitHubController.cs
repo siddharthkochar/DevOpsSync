@@ -1,14 +1,10 @@
-﻿using DevOpsSync.WebApp.API.Models.GitHub.Events;
-using DevOpsSync.WebApp.API.Services.Slack;
+﻿using DevOpsSync.WebApp.API.Services.Slack;
 using DevOpsSync.WebApp.API.Services.VSTS;
+using DevOpsSync.WebApp.Services;
+using DevOpsSync.WebApp.Utility;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Octokit;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DevOpsSync.WebApp.API.Controllers
@@ -19,17 +15,15 @@ namespace DevOpsSync.WebApp.API.Controllers
     {
         private const string Organization = "00004";
         private const string Project = "devops-sync";
-        private readonly Settings config;
         private readonly IDataStore dataStore;
-        private readonly GitHubClient client;
+        private readonly IGitHubService _gitHubService;
 
         public GitHubController(
-            IOptions<Settings> config,
-            IDataStore dataStore)
+            IDataStore dataStore,
+            IGitHubService gitHubService)
         {
-            this.config = config.Value;
             this.dataStore = dataStore;
-            client = new GitHubClient(new ProductHeaderValue("DevOpsSync"));
+            _gitHubService = gitHubService;
         }
 
         [HttpGet("initialize")]
@@ -37,16 +31,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         {
             var state = Guid.NewGuid().ToString();
             dataStore.Storage.Add("github-state", state);
-
-            var request = new OauthLoginRequest(config.GitHub.ClientId)
-            {
-                RedirectUri = new Uri(config.GitHub.RedirectUrl),
-                State = state,
-                Scopes = { "admin:repo_hook" }
-            };
-
-            var oauthLoginUrl = client.Oauth.GetGitHubLoginUrl(request);
-            return Redirect(oauthLoginUrl.AbsoluteUri);
+            return Redirect(_gitHubService.GetConsentUrl(state));
         }
 
         [HttpGet("auth")]
@@ -55,60 +40,29 @@ namespace DevOpsSync.WebApp.API.Controllers
             var githubState = (string)dataStore.Storage["github-state"];
             if (githubState != state)
             {
-                Unauthorized();
+                BadRequest();
             }
 
-            var authRequest = new OauthTokenRequest(config.GitHub.ClientId, config.GitHub.ClientSecret, code);
-            var token = await client.Oauth.CreateAccessToken(authRequest);
-            Response.Cookies.Append("github-token", token.AccessToken);
+            var accessToken = await _gitHubService.GetAccessTokenAsync(code);
+            Response.Cookies.Append("github-token", accessToken);
         }
 
         [HttpGet("webhook/create")]
-        public async Task CreateWebHook()
+        public async Task CreateWebHookAsync()
         {
-            client.Credentials = new Credentials((string)dataStore.Storage["GitHubToken"]);
-
-            var hookConfig = new Dictionary<string, string>
-            {
-                { "url", $"{config.AppRootUrl}/api/github/webhook/handle" },
-                { "content_type", "application/json" }
-            };
-
-            var hook = new NewRepositoryHook("web", hookConfig)
-            {
-                Active = true,
-                Events = new List<string> { "push", "pull_request" }
-            };
-
-            await client.Repository.Hooks.Create("sidkcr", "DevOpsSync", hook);
+            var events = new List<string> { "push", "pull_request" };
+            string token = Request.Cookies["github-token"];
+            await _gitHubService.CreateWebHookAsync(token, events, "sidkcr", "DevOpsSync");
         }
 
         [HttpPost("webhook/handle")]
         public void Handle([FromBody] object content)
         {
             var xGithubEvent = Request.Headers["X-GitHub-Event"].ToString();
-            var message = string.Empty;
-            var state = string.Empty;
-            switch (xGithubEvent)
-            {
-                case "push":
-                    var pushEvent = JsonConvert.DeserializeObject<PushEvent>(content.ToString());
-                    message = pushEvent.commits.First().message;
-                    state = "In Progress";
-                    break;
-                case "pull_request":
-                    var pullRequestEvent = JsonConvert.DeserializeObject<PullRequestEvent>(content.ToString());
-                    message = pullRequestEvent.pull_request.body;
-                    state = pullRequestEvent.action == "opened"
-                        ? "Approved"
-                        : "Done";
-                    break;
-            }
+            (string state, List<string> workItemIds) = _gitHubService.GetEventInformation(xGithubEvent, content.ToString());
 
-            var matches = Regex.Matches(message, @"#\d+");
-            foreach (Match match in matches)
+            foreach (var workItemId in workItemIds)
             {
-                string workItemId = match.Value.Replace("#", string.Empty);
                 SetItemStatus(Organization, Project, Convert.ToInt32(workItemId), state);
             }
 

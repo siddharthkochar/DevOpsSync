@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System;
 using DevOpsSync.WebApp.API.Services.Slack;
+using DevOpsSync.WebApp.Utility;
 
 namespace DevOpsSync.WebApp.API.Controllers
 {

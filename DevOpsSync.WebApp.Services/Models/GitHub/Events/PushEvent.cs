@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DevOpsSync.WebApp.API.Models.GitHub.Events
+namespace DevOpsSync.WebApp.Services.Models.GitHub.Events
 {
     public class PushEvent
     {

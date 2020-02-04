@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using DevOpsSync.WebApp.API.Services.VSTS;
+using DevOpsSync.WebApp.Utility;
 
 namespace DevOpsSync.WebApp.API.Controllers
 {
