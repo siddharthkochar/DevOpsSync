@@ -1,5 +1,4 @@
-﻿using DevOpsSync.WebApp.API.Services.Slack;
-using DevOpsSync.WebApp.API.Services.VSTS;
+﻿using DevOpsSync.WebApp.API.Services.VSTS;
 using DevOpsSync.WebApp.Services;
 using DevOpsSync.WebApp.Utility;
 using Microsoft.AspNetCore.Mvc;
@@ -17,13 +16,16 @@ namespace DevOpsSync.WebApp.API.Controllers
         private const string Project = "devops-sync";
         private readonly IDataStore dataStore;
         private readonly IGitHubService _gitHubService;
+        private readonly ISlackService _slackService;
 
         public GitHubController(
             IDataStore dataStore,
-            IGitHubService gitHubService)
+            IGitHubService gitHubService,
+            ISlackService slackService)
         {
             this.dataStore = dataStore;
             _gitHubService = gitHubService;
+            _slackService = slackService;
         }
 
         [HttpGet("initialize")]
@@ -82,8 +84,8 @@ namespace DevOpsSync.WebApp.API.Controllers
 
         private void PostMessage(string channel, string text)
         {
-            var service = (SlackService)dataStore.Storage[Services.Slack.Constants.SlackKey];
-            service.PostMessage(channel, text);
+            var accessToken = Request.Cookies["slack-token"];
+            _slackService.PostMessage(accessToken, channel, text);
         }
     }
 }

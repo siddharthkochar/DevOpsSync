@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System;
-using DevOpsSync.WebApp.API.Services.Slack;
-using DevOpsSync.WebApp.Utility;
+using DevOpsSync.WebApp.Services;
+using System.Threading.Tasks;
 
 namespace DevOpsSync.WebApp.API.Controllers
 {
@@ -10,41 +9,34 @@ namespace DevOpsSync.WebApp.API.Controllers
     [ApiController]
     public class SlackController : ControllerBase
     {
-        private readonly ClientSettings config;
-        private IDataStore dataStore;
+        private readonly ISlackService _slackService;
 
-        public SlackController(IOptions<Settings> config, IDataStore dataStore)
+        public SlackController(ISlackService slackService)
 
         {
-            this.config = config.Value.Slack;
-            this.dataStore = dataStore;
+            _slackService = slackService;
         }
 
         [HttpGet("initialize")]
         public IActionResult Initialize()
         {
             var state = Guid.NewGuid().ToString();
-            Response.Cookies.Append("state", state);
-
-            var authorizeUrl = $"https://slack.com/oauth/v2/authorize?" +
-                "scope=chat:write,channels:read,im:read,users:read,users:read.email&" +
-                $"client_id={config.ClientId}&" +
-                $"redirect_uri={config.RedirectUrl}";
-
+            Response.Cookies.Append("slack-state", state);
+            var authorizeUrl = _slackService.GetConsentUrl(state);
             return Redirect(authorizeUrl);
         }
 
         [HttpGet("auth")]
-        public void Auth([FromQuery] string code, [FromQuery] string state)
+        public async Task Auth([FromQuery] string code, [FromQuery] string state)
         {
-            var cookies = Request.Cookies["state"];
+            var cookies = Request.Cookies["slack-state"];
             if (cookies != state)
             {
                 Unauthorized();
             }
 
-            dataStore.Storage[Constants.SlackKey] =
-                new SlackService(config.ClientId, config.ClientSecret, code);
+            var accessToken = await _slackService.GetAccessTokenAsync(code);
+            Response.Cookies.Append("slack-token", accessToken);
         }
     }
 }

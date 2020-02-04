@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DevOpsSync.WebApp.API.Models.Slack
+namespace DevOpsSync.WebApp.Services.Models.Slack
 {
     public class Token
     {
