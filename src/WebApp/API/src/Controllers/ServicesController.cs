@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DevOpsSync.WebApp.API.Controllers
 {
-    [Authorize]
     [Route("[controller]")]
     public class ServicesController : ControllerBase
     {
@@ -46,7 +45,7 @@ namespace DevOpsSync.WebApp.API.Controllers
             {
                 return NoContent();
             }
-            
+
             var triggersViewModels = service.Triggers.Select(x => new
             {
                 Id = x.Id,

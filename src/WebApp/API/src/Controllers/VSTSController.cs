@@ -26,7 +26,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         }
 
         [HttpGet("auth")]
-        public async Task Auth([FromQuery] string code, [FromQuery] string state)
+        public async Task<IActionResult> Auth([FromQuery] string code, [FromQuery] string state)
         {
             var cookies = Request.Cookies["devops-state"];
             if (cookies != state)
@@ -35,6 +35,7 @@ namespace DevOpsSync.WebApp.API.Controllers
             }
 
             await _devOpsService.SetRefreshTokenAsync(code);
+            return Redirect("http://localhost:3000/services/action/vsts");
         }
     }
 }

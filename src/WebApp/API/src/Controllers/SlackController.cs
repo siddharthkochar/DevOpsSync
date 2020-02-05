@@ -27,7 +27,7 @@ namespace DevOpsSync.WebApp.API.Controllers
         }
 
         [HttpGet("auth")]
-        public async Task Auth([FromQuery] string code, [FromQuery] string state)
+        public async Task<IActionResult> Auth([FromQuery] string code, [FromQuery] string state)
         {
             var cookies = Request.Cookies["slack-state"];
             if (cookies != state)
@@ -37,6 +37,7 @@ namespace DevOpsSync.WebApp.API.Controllers
 
             var accessToken = await _slackService.GetAccessTokenAsync(code);
             Response.Cookies.Append("slack-token", accessToken);
+            return Redirect("http://localhost:3000/services/action/slack");
         }
     }
 }
