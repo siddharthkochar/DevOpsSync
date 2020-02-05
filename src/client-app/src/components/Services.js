@@ -4,6 +4,19 @@ import { Container, CardDeck, Card, CardImg } from "reactstrap";
 
 const Services = ({ services }) => (
   <Container style={{ marginTop: 50 }}>
+    <div style={{ margin: "70px" }}>
+      <a
+        href="/"
+        style={{
+          fontSize: "70px",
+          color: "#000",
+          textDecoration: "none",
+          fontWeight: 700
+        }}
+      >
+        {"DevOps-Sync"}
+      </a>
+    </div>
     <CardDeck style={{ justifyContent: "center" }}>
       {map(services, service => (
         <Card

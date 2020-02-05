@@ -52,10 +52,23 @@ class App extends Component {
       <div className="App">
         <div>
           <Navbar color="white" dark expand="md">
-            <NavbarBrand href="/" style={{ color: "#000" }}>
-              {"DevOps-Sync"}
-            </NavbarBrand>
             <Collapse navbar></Collapse>
+            <NavbarText>
+              {this.authService.isAuthenticated && (
+                <a
+                  outline
+                  class="btn btn-info"
+                  href="/"
+                  style={{
+                    color: "black",
+                    marginRight: "5px",
+                    textDecoration: "none"
+                  }}
+                >
+                  {"Home"}
+                </a>
+              )}
+            </NavbarText>
             <NavbarText>
               {this.authService.isAuthenticated && (
                 <Button
