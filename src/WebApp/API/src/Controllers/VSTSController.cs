@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using DevOpsSync.WebApp.API.Services.VSTS;
-using DevOpsSync.WebApp.Utility;
+using DevOpsSync.WebApp.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace DevOpsSync.WebApp.API.Controllers
 {
@@ -9,29 +9,32 @@ namespace DevOpsSync.WebApp.API.Controllers
     [ApiController]
     public class VSTSController : ControllerBase
     {
-        private readonly ClientSettings config;
-        private readonly IDataStore dataStore;
+        private readonly IDevOpsService _devOpsService;
 
-        public VSTSController(
-                    IOptions<Settings> config,
-                    IDataStore dataStore)
+        public VSTSController(IDevOpsService devOpsService)
         {
-            this.config = config.Value.VSTS;
-            this.dataStore = dataStore;
-        }
-
-        [HttpGet("authenticate")]
-        public IActionResult Authenticate()
-        {
-            return Redirect(VSTSService.GetAuthUrl(config.ClientId, config.RedirectUrl));
+            _devOpsService = devOpsService;
         }
 
         [HttpGet("initialize")]
-        public IActionResult Initialize([FromQuery] string code)
+        public IActionResult Initialize()
         {
-            dataStore.Storage[Constants.VSTSServiceKey] =
-                new VSTSService(config.ClientSecret, config.RedirectUrl, code);
-            return Ok();
+            var state = Guid.NewGuid().ToString();
+            Response.Cookies.Append("devops-state", state);
+            var authorizeUrl = _devOpsService.GetConsentUrl(state);
+            return Redirect(authorizeUrl);
+        }
+
+        [HttpGet("auth")]
+        public async Task Auth([FromQuery] string code, [FromQuery] string state)
+        {
+            var cookies = Request.Cookies["devops-state"];
+            if (cookies != state)
+            {
+                BadRequest();
+            }
+
+            await _devOpsService.SetRefreshTokenAsync(code);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace DevOpsSync.WebApp.API.Controllers
             var cookies = Request.Cookies["slack-state"];
             if (cookies != state)
             {
-                Unauthorized();
+                BadRequest();
             }
 
             var accessToken = await _slackService.GetAccessTokenAsync(code);

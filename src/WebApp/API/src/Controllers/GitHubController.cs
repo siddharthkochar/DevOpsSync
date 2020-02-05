@@ -1,5 +1,4 @@
-﻿using DevOpsSync.WebApp.API.Services.VSTS;
-using DevOpsSync.WebApp.Services;
+﻿using DevOpsSync.WebApp.Services;
 using DevOpsSync.WebApp.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,15 +16,18 @@ namespace DevOpsSync.WebApp.API.Controllers
         private readonly IDataStore dataStore;
         private readonly IGitHubService _gitHubService;
         private readonly ISlackService _slackService;
+        private readonly IDevOpsService _devOpsService;
 
         public GitHubController(
             IDataStore dataStore,
             IGitHubService gitHubService,
-            ISlackService slackService)
+            ISlackService slackService,
+            IDevOpsService devOpsService)
         {
             this.dataStore = dataStore;
             _gitHubService = gitHubService;
             _slackService = slackService;
+            _devOpsService = devOpsService;
         }
 
         [HttpGet("initialize")]
@@ -58,14 +60,14 @@ namespace DevOpsSync.WebApp.API.Controllers
         }
 
         [HttpPost("webhook/handle")]
-        public void Handle([FromBody] object content)
+        public async Task Handle([FromBody] object content)
         {
             var xGithubEvent = Request.Headers["X-GitHub-Event"].ToString();
             (string state, List<string> workItemIds) = _gitHubService.GetEventInformation(xGithubEvent, content.ToString());
 
             foreach (var workItemId in workItemIds)
             {
-                SetItemStatus(Organization, Project, Convert.ToInt32(workItemId), state);
+                await SetItemStatus(Organization, Project, Convert.ToInt32(workItemId), state);
             }
 
             if (xGithubEvent == "pull_request")
@@ -74,13 +76,11 @@ namespace DevOpsSync.WebApp.API.Controllers
             }
         }
 
-        private void SetItemStatus(
+        private async Task SetItemStatus(
             string organization, string project, int workItemId, string status)
         {
-            var service = (VSTSService)dataStore.Storage[Services.VSTS.Constants.VSTSServiceKey];
-            service.SetWorkItemStatus(organization, project, workItemId, status);
+            await _devOpsService.SetWorkItemStatus(organization, project, workItemId, status);
         }
-
 
         private void PostMessage(string channel, string text)
         {

@@ -49,6 +49,7 @@ namespace DevOpsSync.WebApp.API
             services.AddSingleton(typeof(IRestClient), typeof(RestClient));
             services.AddScoped(typeof(IGitHubService), typeof(GitHubService));
             services.AddScoped(typeof(ISlackService), typeof(SlackService));
+            services.AddScoped(typeof(IDevOpsService), typeof(DevOpsService));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
