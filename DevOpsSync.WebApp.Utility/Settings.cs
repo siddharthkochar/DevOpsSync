@@ -1,4 +1,4 @@
-﻿namespace DevOpsSync.WebApp.API
+﻿namespace DevOpsSync.WebApp.Utility
 {
     public class Settings
     {

@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using DevOpsSync.WebApp.API.Code;
 using DevOpsSync.WebApp.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using DevOpsSync.WebApp.Services;
+using DevOpsSync.WebApp.Utility;
+using RestSharp;
 
 namespace DevOpsSync.WebApp.API
 {
@@ -48,8 +45,11 @@ namespace DevOpsSync.WebApp.API
 
             services.AddControllers();
             services.Configure<Settings>(Configuration.GetSection("Settings"));
-            services.AddScoped(typeof(ISlack), typeof(Slack));
             services.AddSingleton(typeof(IDataStore), typeof(DataStore));
+            services.AddSingleton(typeof(IRestClient), typeof(RestClient));
+            services.AddScoped(typeof(IGitHubService), typeof(GitHubService));
+            services.AddScoped(typeof(ISlackService), typeof(SlackService));
+            services.AddScoped(typeof(IDevOpsService), typeof(DevOpsService));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

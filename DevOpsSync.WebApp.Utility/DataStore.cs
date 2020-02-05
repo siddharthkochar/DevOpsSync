@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DevOpsSync.WebApp.API
+namespace DevOpsSync.WebApp.Utility
 {
     public interface IDataStore
     {

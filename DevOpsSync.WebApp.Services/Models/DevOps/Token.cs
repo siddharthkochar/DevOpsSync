@@ -1,20 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace DevOpsSync.WebApp.API.Models.Slack
+namespace DevOpsSync.WebApp.Services.Models.DevOps
 {
     public class Token
     {
-        public class Request
-        {
-            [JsonProperty(PropertyName = "client_id")]
-            public string ClientId { get; set; }
-
-            [JsonProperty(PropertyName = "client_secret")]
-            public string CilentSecret { get; set; }
-
-            public string Code { get; set; }
-        }
-
         public class Response
         {
             [JsonProperty(PropertyName = "access_token")]
@@ -22,6 +14,9 @@ namespace DevOpsSync.WebApp.API.Models.Slack
 
             [JsonProperty(PropertyName = "token_type")]
             public string TokenType { get; set; }
+
+            [JsonProperty(PropertyName = "refresh_token")]
+            public string RefreshToken { get; set; }
 
             public string Scope { get; set; }
         }
