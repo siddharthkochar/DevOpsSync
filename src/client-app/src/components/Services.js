@@ -1,39 +1,58 @@
-import React from 'react'
-import map from 'lodash/map'
-import { Link } from 'react-router-dom'
-import { Container, CardDeck, Card, CardImg, CardText, CardBody } from 'reactstrap'
+import React from "react";
+import map from "lodash/map";
+import { Container, CardDeck, Card, CardImg } from "reactstrap";
 
 const Services = ({ services }) => (
-	<Container style={{ marginTop: 30 }}>
-		<CardDeck>
-			{map(services, service => (
-				<Card
-					inverse
-					key={service.id}
-					outline
-					style={{
-						backgroundColor: service.color,
-						borderColor: service.color,
-						textAlign: 'center',
-						maxWidth: '25%',
-						padding: 20,
-						cursor: 'pointer'
-					}}>
-					<Link to={`/service/${service.name}`}>
-						<CardImg
-							top
-							style={{ height: 150, margin: 'auto', width: 'auto' }}
-							src={service.imageUrl || require('../logo.svg')}
-							alt='Card image cap'
-						/>
-						<CardBody>
-							<CardText style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{service.name}</CardText>
-						</CardBody>
-					</Link>
-				</Card>
-			))}
-		</CardDeck>
-	</Container>
-)
+  <Container style={{ marginTop: 50 }}>
+    <div style={{ margin: "70px" }}>
+      <a
+        href="/"
+        style={{
+          fontSize: "70px",
+          color: "#000",
+          textDecoration: "none",
+          fontWeight: 700
+        }}
+      >
+        {"DevOps-Sync"}
+      </a>
+    </div>
+    <CardDeck style={{ justifyContent: "center" }}>
+      {map(services, service => (
+        <Card
+          inverse
+          key={service.id}
+          outline
+          style={{
+            backgroundColor: service.color,
+            borderColor: service.color,
+            textAlign: "center",
+            maxWidth: "25%",
+            width: "auto",
+            padding: 20,
+            cursor: "pointer",
+            border: "2px solid #000",
+            borderRadius: "8px"
+          }}
+        >
+          <a
+            href={`https://localhost:5001/api/${service.serviceName}/initialize`}
+          >
+            <CardImg
+              top
+              style={{
+                height: 150,
+                margin: "auto",
+                width: "auto"
+              }}
+              src={service.imageUrl || require("../logo.svg")}
+              alt="Card image cap"
+            />
+          </a>
+        </Card>
+      ))}
+    </CardDeck>
+  </Container>
+);
 
-export default Services
+export default Services;

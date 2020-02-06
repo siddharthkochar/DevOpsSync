@@ -34,12 +34,12 @@ namespace DevOpsSync.WebApp.API.Controllers
         public IActionResult Initialize()
         {
             var state = Guid.NewGuid().ToString();
-            dataStore.Storage.Add("github-state", state);
+            dataStore.Storage["github-state"] = state;
             return Redirect(_gitHubService.GetConsentUrl(state));
         }
 
         [HttpGet("auth")]
-        public async Task Auth([FromQuery] string code, [FromQuery] string state)
+        public async Task<IActionResult> Auth([FromQuery] string code, [FromQuery] string state)
         {
             var githubState = (string)dataStore.Storage["github-state"];
             if (githubState != state)
@@ -49,6 +49,7 @@ namespace DevOpsSync.WebApp.API.Controllers
 
             var accessToken = await _gitHubService.GetAccessTokenAsync(code);
             Response.Cookies.Append("github-token", accessToken);
+            return Redirect("http://localhost:3000/services/action/github");
         }
 
         [HttpGet("webhook/create")]
