@@ -56,8 +56,7 @@ class App extends Component {
             <NavbarText>
               {this.authService.isAuthenticated && (
                 <a
-                  outline
-                  class="btn btn-info"
+                  className="btn btn-info"
                   href="/"
                   style={{
                     color: "black",

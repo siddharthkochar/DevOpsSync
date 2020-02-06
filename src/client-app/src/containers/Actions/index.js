@@ -1,6 +1,7 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 import ActionContainer from "./ActionContainer";
+import Message from "./Message";
 
 const vstsDevOpsActions = [
   {
@@ -84,31 +85,44 @@ const slackActions = [
 export default class Actions extends React.Component {
   constructor() {
     super();
+    this.state = {};
   }
 
-  renderGithub() {
+  renderGithub(props) {
+    const onClick = () => props.history.push("/");
     return (
       <ActionContainer
         services={githubActions}
         heading={"CHOOSE TRIGGER"}
+        onClick={onClick}
       ></ActionContainer>
     );
   }
 
-  renderVSTS() {
+  renderVSTS(props) {
+    const onClick = () => {
+      props.history.push("message/connectionsaved");
+      setTimeout(() => props.history.push("/"), 3000);
+    };
     return (
       <ActionContainer
         services={vstsDevOpsActions}
         heading={"CHOOSE ACTION"}
+        onClick={onClick}
       ></ActionContainer>
     );
   }
 
-  renderSlack() {
+  renderSlack(props) {
+    const onClick = () => {
+      props.history.push("message/connectionsaved");
+      setTimeout(() => props.history.push("/"), 3000);
+    };
     return (
       <ActionContainer
         services={slackActions}
         heading={"CHOOSE ACTION"}
+        onClick={onClick}
       ></ActionContainer>
     );
   }
@@ -119,18 +133,21 @@ export default class Actions extends React.Component {
         <Route
           exact
           path="/services/action/github"
-          render={() => this.renderGithub()}
+          render={this.renderGithub}
         ></Route>
         <Route
           exact
           path="/services/action/vsts"
-          render={() => this.renderVSTS()}
+          render={this.renderVSTS}
         ></Route>
         <Route
           exact
           path="/services/action/slack"
-          render={() => this.renderSlack()}
+          render={this.renderSlack}
         ></Route>
+        <Route exact path="/services/action/message/connectionsaved">
+          <Message text="Connection Saved!" />
+        </Route>
       </Switch>
     );
   }
