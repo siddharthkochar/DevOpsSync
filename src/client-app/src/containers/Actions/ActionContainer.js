@@ -4,7 +4,7 @@ import { Container, Card, CardImg, CardText, CardBody } from "reactstrap";
 
 export default class ActionContainer extends React.Component {
   render() {
-    const { services } = this.props;
+    const { services, onClick } = this.props;
     return (
       <Container style={{ marginTop: 30 }}>
         <div
@@ -37,6 +37,7 @@ export default class ActionContainer extends React.Component {
                 padding: 20,
                 cursor: "pointer"
               }}
+              onClick={onClick}
             >
               <CardBody>
                 <CardText style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
