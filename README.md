@@ -1,2 +1,2 @@
 # DevOpsSync
-Update readme - #16
+Update readme - #17
