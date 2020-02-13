@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\DevOpsSync.WebApp.Services\DevOpsSync.WebApp.Services.csproj" />
+    <ProjectReference Include="..\DevOpsSync.WebApp.Services\DevOpsSync.WebApp.Services.csproj" />
   </ItemGroup>
 
 </Project>
