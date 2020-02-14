@@ -64,23 +64,17 @@ namespace DevOpsSync.WebApp.API.Controllers
         public async Task Handle([FromBody] object content)
         {
             var xGithubEvent = Request.Headers["X-GitHub-Event"].ToString();
-            (string state, List<string> workItemIds) = _gitHubService.GetEventInformation(xGithubEvent, content.ToString());
+            (string state, IEnumerable<int> workItemIds) = _gitHubService.GetEventInformation(xGithubEvent, content.ToString());
 
             foreach (var workItemId in workItemIds)
             {
-                await SetItemStatus(Organization, Project, Convert.ToInt32(workItemId), state);
+                await _devOpsService.SetWorkItemStatus(Organization, Project, workItemId, state);
             }
 
             if (xGithubEvent == "pull_request")
             {
                 PostMessage("general", $"New pull request - https://github.com/sidkcr/DevOpsSync/pulls");
             }
-        }
-
-        private async Task SetItemStatus(
-            string organization, string project, int workItemId, string status)
-        {
-            await _devOpsService.SetWorkItemStatus(organization, project, workItemId, status);
         }
 
         private void PostMessage(string channel, string text)
