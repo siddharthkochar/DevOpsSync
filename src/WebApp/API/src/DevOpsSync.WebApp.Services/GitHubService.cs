@@ -16,7 +16,7 @@ namespace DevOpsSync.WebApp.Services
         string GetConsentUrl(string state);
         Task<string> GetAccessTokenAsync(string code);
         Task CreateWebHookAsync(string token, IEnumerable<string> events, string repoOwner, string repoName);
-        (string, List<string>) GetEventInformation(string gitHubEvent, object content);
+        (string, IEnumerable<int>) GetEventInformation(string gitHubEvent, object content);
     }
 
     public class GitHubService : IGitHubService
@@ -69,11 +69,10 @@ namespace DevOpsSync.WebApp.Services
             await _client.Repository.Hooks.Create(repoOwner, repoName, hook);
         }
 
-        public (string, List<string>) GetEventInformation(string gitHubEvent, object content)
+        public (string, IEnumerable<int>) GetEventInformation(string gitHubEvent, object content)
         {
             var message = string.Empty;
             var state = string.Empty;
-            List<string> workItems = new List<string>();
             switch (gitHubEvent)
             {
                 case "push":
@@ -90,11 +89,9 @@ namespace DevOpsSync.WebApp.Services
                     break;
             }
 
-            var matches = Regex.Matches(message, @"#\d+");
-            foreach (Match match in matches)
-            {
-                workItems.Add(match.Value.Replace("#", string.Empty));
-            }
+            var workItems = from Match m in Regex.Matches(message, @"#\d+")
+                            let workItem = m.Value.Replace("#", string.Empty)
+                            select Convert.ToInt32(workItem);
 
             return (state, workItems);
         }

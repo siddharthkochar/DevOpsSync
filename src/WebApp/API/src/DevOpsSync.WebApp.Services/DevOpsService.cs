@@ -37,7 +37,7 @@ namespace DevOpsSync.WebApp.Services
             request.AddParameter("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
             request.AddParameter("assertion", code);
             request.AddParameter("redirect_uri", _settings.RedirectUrl);
-            IRestResponse<Token.Response> response = await _client.ExecuteAsync<Token.Response>(request, new System.Threading.CancellationToken());
+            IRestResponse<Token.Response> response = await _client.ExecuteAsync<Token.Response>(request);
             _refreshToken = response.Data.RefreshToken;
         }
 
@@ -80,7 +80,7 @@ namespace DevOpsSync.WebApp.Services
             request.AddParameter("grant_type", "refresh_token");
             request.AddParameter("assertion", _refreshToken);
             request.AddParameter("redirect_uri", _settings.RedirectUrl);
-            IRestResponse<Token.Response> response = await _client.ExecuteAsync<Token.Response>(request, new System.Threading.CancellationToken());
+            IRestResponse<Token.Response> response = await _client.ExecuteAsync<Token.Response>(request);
             _refreshToken = response.Data.RefreshToken;
             return response.Data.AccessToken;
         }
